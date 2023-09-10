@@ -1,8 +1,8 @@
 ---
-title: Respiratory Diseases Classification Cnn Tf
-emoji: 👀
+title: Respiratory Diseases Classification
+emoji: 🫁
 colorFrom: red
-colorTo: gray
+colorTo: blue
 sdk: streamlit
 sdk_version: 1.26.0
 app_file: app.py
