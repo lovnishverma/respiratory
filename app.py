@@ -17,7 +17,7 @@ import seaborn as sns
 
 st.title('Respiratory Tract Disease Prediction')
 with st.expander('**AI Model and Database Context**'):
-    st.caption('*Made with ❤️  by Yose Marthin Giyay*')
+    st.caption('*Made with ❤️*')
     st.caption('This is an interface for a Convolutional Neural Network (CNN) model trained using **TensorFlow 2.11.0**. The model is trained on data from the **Respiratory Sound Database**, collected by two research teams with patient subsets in Portugal and Greece, presented at the International Conference on Biomedical Health Informatics (ICHBI).')
     st.caption('Librosa library is used here to extract Mel-Frequency Cepstral Coefficients (MFCCs) from audio files. MFCCs represent the audio in a mathematical format, allowing extraction of important features in the natural frequency range of the human ear from audio files for input into the CNN model during training/prediction.')
     st.caption('The used database can be explored and/or downloaded here: https://bhichallenge.med.auth.gr/')
