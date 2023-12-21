@@ -10,28 +10,27 @@ import librosa
 import librosa.display
 import seaborn as sns
 
-#import sounddevice as sd
-#from scipy.io.wavfile import write
+# Import sounddevice as sd
+# from scipy.io.wavfile import write
 
-#import pdb
+# Import pdb
 
-st.title('Prediksi Penyakit Saluran Pernapasan')
-with st.expander('**Konteks Model AI dan Database**'):
-    #st.markdown('**Konteks Model AI dan Database:**')
+st.title('Respiratory Tract Disease Prediction')
+with st.expander('**AI Model and Database Context**'):
     st.caption('*Made with ❤️  by Yose Marthin Giyay*')
-    st.caption('Ini merupakan laman *interface* untuk model Convolutional Neural Network (CNN) yang dilatih menggunakan **TensorFlow 2.11.0**. Model ini dilatih dengan data dari **Respiratory Sound Database** yang dikemas 2 tim peneliti dengan subset populasi pasien di Portugal dan Yunani atas nama *International Conference on Biomedical Health Informatics* (ICHBI)')
-    st.caption('Di sini _library_ **Librosa** digunakan untuk mengekstraksi MFCCs dari *file* audio. MFCC (*Mel-Frequency Cepstral Coefficients*) merupakan format representasi audio. Dengan proses matematis ini, fitur-fitur penting di jangkauan frekuensi alami telinga manusia dapat diekstraksi dari *file* audio dan dijadikan *input* ke model CNN untuk proses pelatihan model/prediksi.')
-    st.caption('Database yang digunakan dapat dijelajah dan/atau diunduh di sini: https://bhichallenge.med.auth.gr/')
-    st.caption('Jurnal ilmiah menyangkut pengumpulan data oleh tim dapat dilihat di sini: https://link.springer.com/chapter/10.1007/978-981-10-7419-6_6')
+    st.caption('This is an interface for a Convolutional Neural Network (CNN) model trained using **TensorFlow 2.11.0**. The model is trained on data from the **Respiratory Sound Database**, collected by two research teams with patient subsets in Portugal and Greece, presented at the International Conference on Biomedical Health Informatics (ICHBI).')
+    st.caption('Librosa library is used here to extract Mel-Frequency Cepstral Coefficients (MFCCs) from audio files. MFCCs represent the audio in a mathematical format, allowing extraction of important features in the natural frequency range of the human ear from audio files for input into the CNN model during training/prediction.')
+    st.caption('The used database can be explored and/or downloaded here: https://bhichallenge.med.auth.gr/')
+    st.caption('Scientific papers related to data collection by the research teams can be found here: https://link.springer.com/chapter/10.1007/978-981-10-7419-6_6')
     st.caption('Project roadmap: developing a low-cost wireless stethoscope')
-    
-st.subheader('**Kategori diagnosis:**')
-st.markdown('*- Sehat*   \n*- Bronkiektasis*   \n*- Bronkiolitis*   \n*- Penyakit Paru Obstruktif Kronis (PPOK)*   \n*- Pneumonia*   \n*- Infeksi Saluran Pernapasan Atas*')
-st.subheader('Unggah *file* audio dan mulai prediksi')
-st.caption('*Dalam pengembangan: rekam langsung di laman ini*. Idealnya audio yang digunakan direkam dengan stetoskop di area trakea, bisa gunakan mata stetoskop yang disambung dengan *mic* headset Bluetooth, misalnya. Untuk sekarang, bisa coba fitur *interface* dulu dengan rekaman pernapasan langsung dari mic HP.')
-st.caption('**Silakan unggah *fail* audio .wav berdurasi ~20 detik**')
 
-# Definisikan Function untuk prediksi
+st.subheader('**Diagnosis Categories:**')
+st.markdown('*- Healthy*   \n*- Bronchiectasis*   \n*- Bronchiolitis*   \n*- Chronic Obstructive Pulmonary Disease (COPD)*   \n*- Pneumonia*   \n*- Upper Respiratory Tract Infection (URTI)*')
+st.subheader('Upload an audio file and start prediction')
+st.caption('*In development: record directly on this page*. Ideally, use audio recorded with a stethoscope in the tracheal area. You can use a Bluetooth headset with a stethoscope attachment, for example. For now, try the interface feature first with direct respiratory recordings from the phone microphone.')
+st.caption('**Please upload a .wav audio file with a duration of ~20 seconds**')
+
+# Define Function for prediction
 def predict_disease(model, features):
     # Predict
     prediction = model.predict(features)
@@ -39,46 +38,46 @@ def predict_disease(model, features):
     
     return prediction, c_pred
 
-# Muat model yang di latih - version mismatch, manual compile
+# Load the trained model - version mismatch, manual compile
 model = load_model('./model/CNN-MFCC.h5', compile=False)
 model.compile(loss='categorical_crossentropy', metrics=['accuracy'], optimizer='adam')
 
-# Label
+# Labels
 clabels = ['Bronchiectasis', 'Bronchiolitis', 'Chronic Obstructive Pulmonary Disease (COPD)', 'Healthy', 'Pneumonia', 'Upper Respiratory Tract Infection (URTI)']
-clabels_idn = ['Bronkiektasis', 'Bronkiolitis', 'Penyakit Paru Obstruktif Kronis (PPOK)', 'Sehat', 'Radang Paru-Paru', 'Infeksi Saluran Pernapasan Atas']
+clabels_idn = ['Bronchiectasis', 'Bronchiolitis', 'Chronic Obstructive Pulmonary Disease (COPD)', 'Healthy', 'Pneumonia', 'Upper Respiratory Tract Infection (URTI)']
 
 # Create a form for input and output components
 with st.form(key="prediction_form"):
     # Upload and display audio file
-    uploaded_file = st.file_uploader("Pilih *file* audio (hanya format .WAV)")
+    uploaded_file = st.file_uploader("Choose an audio file (only .WAV format)")
     
-    # Proses audio yang diunggah, ekstraksi MFCCs
+    # Process the uploaded audio, extract MFCCs
     if uploaded_file is not None:
-        # Memuat berkas audio
+        # Load the audio file
         audio, sample_rate = librosa.load(uploaded_file, duration=20)
         
-        # Tampilkan Spektogram Mel
+        # Display Mel Spectrogram
         st.markdown('Mel Spectrogram')
         fig, ax = plt.subplots()
         sns.heatmap(librosa.power_to_db(librosa.feature.melspectrogram(y=audio, sr=sample_rate), ref=np.max))
         st.pyplot(fig)
 
-        # Ekstraksi MFCCs
+        # Extract MFCCs
         mfccs = librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=40)
-        # Padding dimensi, dari (20, 862) ke (1, 40, 862, 1)
+        # Pad dimensions, from (20, 862) to (1, 40, 862, 1)
         max_pad_len = 862
         pad_width = max_pad_len - mfccs.shape[1]
         mfccs = np.pad(mfccs, pad_width=((0, 0), (0, pad_width)), mode='constant')
         features = np.expand_dims(np.array(mfccs), axis=(0, -1))
 
     # Submit the prediction request
-    submit_button = st.form_submit_button("Prediksi kemungkinan penyakit")
+    submit_button = st.form_submit_button("Predict the likelihood of disease")
 
     # Display the prediction results
     if submit_button:
         prediction, c_pred = predict_disease(model, features)
         max_value = np.max(prediction)
         formatted_max = np.format_float_positional(max_value*100, precision=2)
-        st.title('Prediksi: ')
-        st.subheader(f'**{clabels_idn[c_pred]}**: {formatted_max}%')
-        st.subheader(f'*{clabels[c_pred]}*')
+        st.title('Prediction: ')
+        st.subheader(f'**{clabels[c_pred]}**: {formatted_max}%')
+        st.subheader(f'*{clabels_idn[c_pred]}*')
